@@ -1,7 +1,8 @@
 game_logs.csv
 major-league-baseball-game-logs.zip
-*.pkl
 __pycache__/
 catboost_info/
 .env
 *.log
+# Allow models
+!models/*.pkl
