@@ -35,6 +35,6 @@ jobs:
         run: |
           git config --global user.name 'GitHub Action'
           git config --global user.email 'action@github.com'
-          git add bot_mlb_prod.log
+          git add -f bot_mlb_prod.log
           git commit -m "Auto-update: Hourly MLB Quant Analysis Logs" || echo "No changes to commit"
-          git push
+          git push || echo "Nothing to push"
