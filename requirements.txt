@@ -5,3 +5,4 @@ xgboost
 requests
 joblib
 pybaseball
+python-telegram-bot
