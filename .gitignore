@@ -3,5 +3,6 @@ major-league-baseball-game-logs.zip
 __pycache__/
 catboost_info/
 .env
+!bot_mlb_prod.log
 # Allow models
 !models/*.pkl
