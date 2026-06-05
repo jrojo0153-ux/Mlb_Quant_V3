@@ -1,1 +1,4 @@
 2026-06-05 16:00:50,056 [ERROR] Dataset no encontrado.
+2026-06-05 18:03:15,945 [INFO] Ensamble cargado desde modelos de Kaggle.
+2026-06-05 18:03:15,945 [INFO] Iniciando inferencia sobre dataset histórico...
+2026-06-05 18:03:15,946 [ERROR] Error en ciclo: [Errno 2] No such file or directory: 'game_logs.csv'
