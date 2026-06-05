@@ -2,9 +2,8 @@
 import logging
 import joblib
 import pandas as pd
-import asyncio
 import os
-from telegram import Bot
+from datetime import datetime
 
 logging.basicConfig(
     level=logging.INFO,
@@ -13,46 +12,36 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-async def notify_telegram(msg):
-    # Prioridad: Secret de GitHub Environment -> Valor por defecto
-    TOKEN = os.getenv('TELEGRAM_TOKEN', '8766709924:AAGOgVeUB39ZsH7b5BDWxvXvQCapmpiqbAo')
-    CHAT_ID = os.getenv('TELEGRAM_CHAT_ID', '8536626773')
-    try:
-        bot = Bot(token=TOKEN)
-        await bot.send_message(chat_id=CHAT_ID, text=msg, parse_mode='Markdown')
-        logger.info("Notificación enviada con éxito.")
-    except Exception as e:
-        logger.error(f'Error en Telegram: {e}')
-
 class MLBKaggleBot:
-    def __init__(self):
-        self.models = {
-            'xgb': joblib.load('models/xgb_model.pkl'),
-            'lgb': joblib.load('models/lgb_model.pkl'),
-            'cat': joblib.load('models/cat_model.pkl')
-        }
+    def __init__(self, kelly_fraction=0.02):
+        try:
+            self.xgb = joblib.load('models/xgb_model.pkl')
+            self.lgb = joblib.load('models/lgb_model.pkl')
+            self.cat = joblib.load('models/cat_model.pkl')
+            logger.info('Ensamble cargado desde modelos de Kaggle.')
+        except Exception as e:
+            logger.error(f'Error cargando modelos: {e}')
 
-    async def run_inference(self):
-        if not os.path.exists('game_logs.csv'):
-            logger.error("Dataset no encontrado.")
-            return
+        self.bankroll = 1000.0
+        self.kelly_fraction = kelly_fraction
 
-        df = pd.read_csv('game_logs.csv', low_memory=False).tail(10)
-        cols = ['h_score', 'v_score', 'h_walks', 'v_walks', 'h_errors', 'v_errors']
-        X = df[cols].fillna(0)
+    def run_inference(self):
+        logger.info('Iniciando inferencia sobre dataset histórico...')
+        try:
+            df = pd.read_csv('game_logs.csv', low_memory=False).tail(10)
+            features = df[['h_score', 'v_score', 'h_walks', 'v_walks', 'h_errors', 'v_errors']].fillna(0)
 
-        # Ensamble
-        p1 = self.models['xgb'].predict_proba(X)[:, 1]
-        p2 = self.models['lgb'].predict_proba(X)[:, 1]
-        p3 = self.models['cat'].predict_proba(X)[:, 1]
-        probs = (p1 + p2 + p3) / 3
+            p1 = self.xgb.predict_proba(features)[:, 1]
+            p2 = self.lgb.predict_proba(features)[:, 1]
+            p3 = self.cat.predict_proba(features)[:, 1]
 
-        report = "⚾️ *MLB Quant V3: Live Report* ⚾️\n\n"
-        for i, prob in enumerate(probs):
-            report += f"🔹 *Juego {i+1}*: Prob. Victoria Local: `{prob:.2%}`\n"
-        
-        await notify_telegram(report)
+            final_probs = (p1 + p2 + p3) / 3
 
-if __name__ == '__main__':
+            for i, prob in enumerate(final_probs):
+                logger.info(f'[INFO] Juego Histórico {i}: Probabilidad Local {prob:.2%}')
+        except Exception as e:
+            logger.error(f'Error en ciclo: {e}')
+
+if __name__ == "__main__":
     bot = MLBKaggleBot()
-    asyncio.run(bot.run_inference())
+    bot.run_inference()
