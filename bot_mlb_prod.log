@@ -6461,3 +6461,6 @@
 2026-11-01 07:18:47,039 [INFO] Ensamble cargado desde modelos de Kaggle.
 2026-11-01 07:18:47,039 [INFO] Iniciando inferencia sobre dataset histórico...
 2026-11-01 07:18:47,040 [ERROR] Error en ciclo: [Errno 2] No such file or directory: 'game_logs.csv'
+2026-11-01 09:49:33,950 [INFO] Ensamble cargado desde modelos de Kaggle.
+2026-11-01 09:49:33,950 [INFO] Iniciando inferencia sobre dataset histórico...
+2026-11-01 09:49:33,951 [ERROR] Error en ciclo: [Errno 2] No such file or directory: 'game_logs.csv'
